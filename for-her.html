@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Just for you</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #fdf8f3;
+    --rose: #c9a09a;
+    --rose-deep: #a07070;
+    --ink: #2c2420;
+    --ink-soft: #5a4a45;
+    --petal: #f0ddd8;
+    --gold: #c8a97e;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+  }
+
+  /* ── Petals bg ── */
+  .petal-bg {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    overflow: hidden;
+  }
+  .petal {
+    position: absolute;
+    width: 18px; height: 26px;
+    border-radius: 60% 40% 60% 40% / 55% 45% 55% 45%;
+    opacity: 0;
+    animation: fall linear infinite;
+  }
+  @keyframes fall {
+    0%   { transform: translateY(-40px) rotate(0deg); opacity: 0; }
+    10%  { opacity: 0.35; }
+    90%  { opacity: 0.2; }
+    100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+  }
+
+  /* ── Layout ── */
+  .page {
+    position: relative; z-index: 1;
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+  }
+
+  /* ── Intro screen ── */
+  #intro {
+    text-align: center;
+    animation: fadeUp 1.2s ease both;
+  }
+  .eyebrow {
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--rose);
+    margin-bottom: 1.8rem;
+  }
+  .intro-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(2.6rem, 7vw, 4.2rem);
+    line-height: 1.15;
+    color: var(--ink);
+    margin-bottom: 1.4rem;
+  }
+  .intro-title em {
+    font-style: italic;
+    color: var(--rose-deep);
+  }
+  .intro-sub {
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    line-height: 1.8;
+    max-width: 400px;
+    margin: 0 auto 2.8rem;
+  }
+  .start-btn {
+    background: none;
+    border: 1px solid var(--rose);
+    color: var(--rose-deep);
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+    font-size: 0.8rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    padding: 0.85rem 2.4rem;
+    cursor: pointer;
+    border-radius: 40px;
+    transition: all 0.3s ease;
+  }
+  .start-btn:hover {
+    background: var(--rose);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(169,112,112,0.18);
+  }
+
+  /* ── Question screen ── */
+  #questions {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    max-width: 640px;
+  }
+  .q-heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    color: var(--ink-soft);
+    margin-bottom: 2.4rem;
+    line-height: 1.4;
+  }
+  .q-heading em { color: var(--rose-deep); font-style: italic; }
+
+  .choices {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+  }
+  .choice-btn {
+    background: #fff;
+    border: 1px solid var(--petal);
+    border-radius: 16px;
+    padding: 1.1rem 1.6rem;
+    text-align: left;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem;
+    font-weight: 300;
+    color: var(--ink);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex; align-items: center; gap: 0.9rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  }
+  .choice-btn:hover {
+    border-color: var(--rose);
+    transform: translateX(6px);
+    box-shadow: 0 6px 24px rgba(169,112,112,0.12);
+  }
+  .choice-btn .icon {
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+
+  /* ── Response screen ── */
+  #response {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    max-width: 580px;
+    animation: fadeUp 0.8s ease both;
+  }
+  .resp-icon {
+    font-size: 2.4rem;
+    margin-bottom: 1.4rem;
+  }
+  .resp-label {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--rose);
+    margin-bottom: 1rem;
+  }
+  .resp-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(1.7rem, 5vw, 2.5rem);
+    color: var(--ink);
+    line-height: 1.25;
+    margin-bottom: 1.6rem;
+  }
+  .resp-body {
+    font-size: 0.97rem;
+    line-height: 2;
+    color: var(--ink-soft);
+    max-width: 480px;
+  }
+  .resp-body strong {
+    color: var(--rose-deep);
+    font-weight: 400;
+  }
+  .divider {
+    width: 48px; height: 1px;
+    background: var(--rose);
+    margin: 2rem auto;
+    opacity: 0.5;
+  }
+  .back-btn {
+    margin-top: 2.2rem;
+    background: none;
+    border: none;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--rose);
+    cursor: pointer;
+    display: flex; align-items: center; gap: 0.5rem;
+    transition: gap 0.2s;
+  }
+  .back-btn:hover { gap: 0.8rem; }
+
+  /* ── Closing screen ── */
+  #closing {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    max-width: 500px;
+    animation: fadeUp 1s ease both;
+  }
+  .closing-heart {
+    font-size: 2.8rem;
+    margin-bottom: 1.6rem;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.12); }
+  }
+  .closing-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(2rem, 6vw, 3rem);
+    color: var(--ink);
+    line-height: 1.2;
+    margin-bottom: 1.2rem;
+  }
+  .closing-text {
+    font-size: 0.97rem;
+    line-height: 2;
+    color: var(--ink-soft);
+  }
+  .closing-sig {
+    margin-top: 2.4rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.3rem;
+    color: var(--rose-deep);
+  }
+  .see-all-btn {
+    margin-top: 2rem;
+    background: none;
+    border: 1px solid var(--petal);
+    border-radius: 40px;
+    padding: 0.7rem 1.8rem;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .see-all-btn:hover {
+    border-color: var(--rose);
+    color: var(--rose-deep);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .hidden { display: none !important; }
+  .showing { display: flex !important; }
+</style>
+</head>
+<body>
+
+<!-- Floating petals -->
+<div class="petal-bg" id="petalBg"></div>
+
+<div class="page" id="app">
+
+  <!-- INTRO -->
+  <div id="intro">
+    <p class="eyebrow">A little something</p>
+    <h1 class="intro-title">I know you have<br><em>things on your mind.</em></h1>
+    <p class="intro-sub">And that's okay. Tell me what you're feeling — I wrote something for each one of them.</p>
+    <button class="start-btn" onclick="showQuestions()">I'm ready →</button>
+  </div>
+
+  <!-- QUESTIONS -->
+  <div id="questions">
+    <p class="q-heading">What's on your heart <em>right now?</em></p>
+    <div class="choices" id="choicesList"></div>
+  </div>
+
+  <!-- RESPONSE -->
+  <div id="response">
+    <div class="resp-icon" id="respIcon"></div>
+    <p class="resp-label">He says —</p>
+    <h2 class="resp-title" id="respTitle"></h2>
+    <div class="divider"></div>
+    <p class="resp-body" id="respBody"></p>
+    <button class="back-btn" onclick="showQuestions()">← something else is on my mind</button>
+  </div>
+
+  <!-- CLOSING -->
+  <div id="closing">
+    <div class="closing-heart">🌸</div>
+    <h2 class="closing-title">None of this changes<br>how I feel about you.</h2>
+    <p class="closing-text">
+      You don't have to be ready.<br>
+      You don't have to be perfect.<br>
+      You just have to be you —<br>
+      and that's already everything to me.
+    </p>
+    <p class="closing-sig">— always yours, whether you're mine or not.</p>
+    <button class="see-all-btn" onclick="showQuestions()">← go back</button>
+  </div>
+
+</div>
+
+<script>
+const responses = [
+  {
+    icon: "🌿",
+    choice: "I'm scared of being in a relationship",
+    title: "Your fear makes complete sense to me.",
+    body: `Fear doesn't mean you're broken — it means you've <strong>felt things deeply before</strong>. I'm not asking you to stop being scared. I just want you to know that whatever pace feels safe to you, I'll walk at that pace. I'm not going anywhere just because it's slow. <br><br>You don't have to be brave for me. I'll be patient enough for both of us.`
+  },
+  {
+    icon: "💭",
+    choice: "You deserve someone better",
+    title: "Let me decide what I deserve.",
+    body: `I've thought about this more than you know — and every time, I arrive at the same answer: <strong>it's you</strong>. Not some idea of a perfect person. You. With your hesitations, your fears, your soft edges. That's not settling. That's knowing exactly what I want. <br><br>Please stop trying to talk me out of my own heart.`
+  },
+  {
+    icon: "🕊️",
+    choice: "I don't want to hurt you",
+    title: "Your kindness already tells me everything.",
+    body: `The fact that you're worried about hurting me — that right there — is proof of how gentle you are. <strong>I'm not fragile.</strong> I know the risk. I'm choosing it, eyes open, because being close to you is worth every uncertainty. <br><br>Don't protect me from you. I don't want that protection.`
+  },
+  {
+    icon: "🪞",
+    choice: "I don't think I'm ready",
+    title: "Then we wait. Together.",
+    body: `Ready isn't a switch you flip. And I'm not holding a countdown over your head. <strong>There's no deadline here</strong> — no expiry on how long I'll care about you. <br><br>Being not-ready doesn't mean no. It just means not yet. And "not yet" I can live with. What I couldn't live with is walking away before you even had the chance to find out.`
+  },
+  {
+    icon: "🌙",
+    choice: "What if it doesn't work out?",
+    title: "What if it does?",
+    body: `I know — endings are scary, especially when you've seen what they look like. But I'm not asking for a guarantee. <strong>I'm asking for a chance.</strong> A real one. <br><br>And even if it doesn't work out one day — I'd still rather have tried with you than never known what this could be. Some things are worth the risk. You are worth the risk.`
+  },
+  {
+    icon: "🤍",
+    choice: "I'm not sure how I feel",
+    title: "That's okay. Feelings are allowed to take time.",
+    body: `You don't owe me certainty. <strong>Uncertainty is honest</strong>, and I respect honest far more than rushed. <br><br>I'm not here to pressure you into knowing. I'm here because I already know, for my part — and I can hold both of our truths at once while you figure out yours. Take all the time you need.`
+  },
+  {
+    icon: "✨",
+    choice: "I just want you to be happy",
+    title: "Then know this: you make me happy.",
+    body: `Not the version of me that gets everything. <strong>The version of me that gets to talk to you</strong>, to be near you, to know you. That person is already happy. <br><br>So if you're holding back because you're thinking of my happiness — I promise you, you're already contributing to it. Just by being here.`
+  },
+];
+
+function makePetals() {
+  const bg = document.getElementById('petalBg');
+  const colors = ['#f0ddd8','#e8cfc9','#d9b8b2','#f5e6e2','#eddad6'];
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    p.className = 'petal';
+    p.style.cssText = `
+      left: ${Math.random()*100}%;
+      top: ${Math.random()*100}%;
+      background: ${colors[Math.floor(Math.random()*colors.length)]};
+      animation-duration: ${9 + Math.random()*10}s;
+      animation-delay: ${Math.random()*10}s;
+      transform: rotate(${Math.random()*360}deg);
+      width: ${14+Math.random()*10}px;
+      height: ${20+Math.random()*14}px;
+    `;
+    bg.appendChild(p);
+  }
+}
+
+function buildChoices() {
+  const list = document.getElementById('choicesList');
+  list.innerHTML = '';
+  responses.forEach((r, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.innerHTML = `<span class="icon">${r.icon}</span><span>${r.choice}</span>`;
+    btn.onclick = () => showResponse(i);
+    list.appendChild(btn);
+  });
+  // Add a closing option
+  const closingBtn = document.createElement('button');
+  closingBtn.className = 'choice-btn';
+  closingBtn.innerHTML = `<span class="icon">🌸</span><span>I've read them all...</span>`;
+  closingBtn.onclick = showClosing;
+  list.appendChild(closingBtn);
+}
+
+function show(id) {
+  ['intro','questions','response','closing'].forEach(s => {
+    const el = document.getElementById(s);
+    el.style.display = 'none';
+  });
+  const target = document.getElementById(id);
+  target.style.display = 'flex';
+  target.style.animation = 'none';
+  setTimeout(() => target.style.animation = 'fadeUp 0.8s ease both', 10);
+}
+
+function showQuestions() { show('questions'); }
+function showClosing() { show('closing'); }
+
+function showResponse(i) {
+  const r = responses[i];
+  document.getElementById('respIcon').textContent = r.icon;
+  document.getElementById('respTitle').textContent = r.title;
+  document.getElementById('respBody').innerHTML = r.body;
+  show('response');
+}
+
+// Init
+makePetals();
+buildChoices();
+</script>
+</body>
+</html>
